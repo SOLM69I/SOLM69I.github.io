@@ -677,7 +677,7 @@
 
         .laser-obama {
             position: fixed;
-            width: 250px;
+            width: 350px;
             height: auto;
             top: 20%;
             left: 20px;
@@ -852,11 +852,38 @@
             75% { transform: translate(2px, 2px) scale(1.13); filter: hue-rotate(270deg); }
             100% { transform: translate(0) scale(1.1); filter: hue-rotate(360deg); }
         }
+
+        .jet-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        .jet {
+            position: absolute;
+            width: 250px;
+            height: auto;
+            opacity: 0.9;
+            filter: brightness(1.2);
+            transform: scaleX(-1);
+        }
+
+        .jet:nth-child(2) {
+            animation-duration: 12s;
+        }
     </style>
 </head>
 <body>
     <div class="matrix-bg"></div>
     <div class="bomb-container"></div>
+    <div class="jet-container">
+        <img src="assets/jets/jet1.gif" class="jet" alt="Jet 1">
+        <img src="assets/jets/jet2.gif" class="jet" alt="Jet 2">
+    </div>
     <img src="assets/obama-laser-eyes.jpeg" class="laser-obama" alt="Laser Obama">
     <!-- <img src="assets/new/photo_2024-12-14_19-22-53.jpg" class="conspiracy-map" alt="Conspiracy"> -->
     
@@ -1223,6 +1250,56 @@
 
         // Create bombs randomly
         setInterval(createBomb, 2000);
+
+        // Random jet paths
+        function randomJetPath(jet) {
+            const duration = 10 + Math.random() * 10; // Random duration between 10-20s
+            const startY = Math.random() * window.innerHeight * 0.8;
+            const endY = Math.random() * window.innerHeight * 0.8;
+            const midY = Math.random() * window.innerHeight * 0.8;
+            const midX = window.innerWidth * (0.3 + Math.random() * 0.4); // 30-70% of screen width
+            
+            const keyframes = [
+                {
+                    transform: `translate(-250px, ${startY}px) rotate(-15deg) scaleX(-1)`,
+                    filter: 'brightness(1.2)'
+                },
+                {
+                    transform: `translate(${midX}px, ${midY}px) rotate(${-10 + Math.random() * 20}deg) scaleX(-1)`,
+                    filter: 'brightness(1.5) hue-rotate(90deg)',
+                    offset: 0.5
+                },
+                {
+                    transform: `translate(${window.innerWidth + 250}px, ${endY}px) rotate(-15deg) scaleX(-1)`,
+                    filter: 'brightness(1.2)'
+                }
+            ];
+
+            const options = {
+                duration: duration * 1000,
+                easing: 'linear',
+                iterations: 1
+            };
+
+            const animation = jet.animate(keyframes, options);
+            
+            animation.onfinish = () => {
+                randomJetPath(jet); // Start a new random path when the current one finishes
+            };
+        }
+
+        // Initialize random paths for jets
+        document.querySelectorAll('.jet').forEach(jet => {
+            randomJetPath(jet);
+        });
+
+        // Update paths on window resize
+        window.addEventListener('resize', () => {
+            document.querySelectorAll('.jet').forEach(jet => {
+                jet.getAnimations().forEach(animation => animation.cancel());
+                randomJetPath(jet);
+            });
+        });
     </script>
 </body>
 </html> 
